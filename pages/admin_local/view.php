@@ -36,20 +36,27 @@
                                 <th>Position</th>
                                 <th>Client</th>
                                 <th>Total Paiement</th>
+                                <th>Montant à Payer</th>
+                                <th>Montant Restant</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($GetEspacesOccupee as $key => $AfficherEspacesOccupee) {
                                     $montantTotal = 0;
+                                    $montantInitial = 0;
                                     if (isset($_POST['year'])) {
                                         $ImpayeLocation = ImpayeLocation($baseDeDonnee, $AfficherEspacesOccupee['id_espaces'], $_POST['year']);
+                                        $GetPaiementsEspaces = GetPaiementsEspaces($baseDeDonnee, $AfficherEspacesOccupee['id_espaces']);
+                                        $montantInitial = $GetPaiementsEspaces * 12;
                                     } else {
                                         $ImpayeLocation = ImpayeLocation($baseDeDonnee, $AfficherEspacesOccupee['id_espaces']);
+                                        $GetPaiementsEspaces = GetPaiementsEspaces($baseDeDonnee, $AfficherEspacesOccupee['id_espaces']);
+                                        $montantInitial = $GetPaiementsEspaces * 12;
                                     }
                                     foreach ($ImpayeLocation as $key => $montant) {
                                         $montantTotal += $montant['DATA'];
-                                    }     ?>
+                                    } ?>
                             <tr>
                                 <td><?= date('Y-m-d', strtotime($AfficherEspacesOccupee['date_location'])); ?></td>
                                 <td><?= $AfficherEspacesOccupee['bloc'] . '-' . $AfficherEspacesOccupee['numero']; ?>
@@ -60,6 +67,8 @@
                                 <td><?= $AfficherEspacesOccupee['nom'] . '-' . $AfficherEspacesOccupee['prenom'] . '-' . $AfficherEspacesOccupee['telephone']; ?>
                                 </td>
                                 <td> <?= $montantTotal; ?></td>
+                                <td><?= $montantInitial; ?> </td>
+                                <td><?= ($montantInitial - $montantTotal); ?> </td>
                                 <td><button type="button" class="btn btn-primary" data-toggle="modal"
                                         data-target="#query-<?= $AfficherEspacesOccupee['id_espaces']; ?>"><i
                                             class="fa fa-question-circle"></i>

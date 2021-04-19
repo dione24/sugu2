@@ -1,5 +1,5 @@
 <?php if ($_GET['display'] == 'espaces_louee') {
-  $GetEspacesOccupee  = GetEspaceOccupe($baseDeDonnee);  ?>
+    $GetEspacesOccupee  = GetEspaceOccupe($baseDeDonnee);  ?>
 <section class="content-header">
     <h1>
         Listes des Espaces en Location
@@ -36,20 +36,27 @@
                                 <th>Position</th>
                                 <th>Client</th>
                                 <th>Total Paiement</th>
+                                <th>Montant à Payer</th>
+                                <th>Montant Restant</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($GetEspacesOccupee as $key => $AfficherEspacesOccupee) {
-                  $montantTotal = 0;
-                  if (isset($_POST['year'])) {
-                    $ImpayeLocation = ImpayeLocation($baseDeDonnee, $AfficherEspacesOccupee['id_espaces'], $_POST['year']);
-                  } else {
-                    $ImpayeLocation = ImpayeLocation($baseDeDonnee, $AfficherEspacesOccupee['id_espaces']);
-                  }
-                  foreach ($ImpayeLocation as $key => $montant) {
-                    $montantTotal += $montant['DATA'];
-                  } ?>
+                                    $montantTotal = 0;
+                                    $montantInitial = 0;
+                                    if (isset($_POST['year'])) {
+                                        $ImpayeLocation = ImpayeLocation($baseDeDonnee, $AfficherEspacesOccupee['id_espaces'], $_POST['year']);
+                                        $GetPaiementsEspaces = GetPaiementsEspaces($baseDeDonnee, $AfficherEspacesOccupee['id_espaces']);
+                                        $montantInitial = $GetPaiementsEspaces * 12;
+                                    } else {
+                                        $ImpayeLocation = ImpayeLocation($baseDeDonnee, $AfficherEspacesOccupee['id_espaces']);
+                                        $GetPaiementsEspaces = GetPaiementsEspaces($baseDeDonnee, $AfficherEspacesOccupee['id_espaces']);
+                                        $montantInitial = $GetPaiementsEspaces * 12;
+                                    }
+                                    foreach ($ImpayeLocation as $key => $montant) {
+                                        $montantTotal += $montant['DATA'];
+                                    } ?>
                             <tr>
                                 <td><?= date('Y-m-d', strtotime($AfficherEspacesOccupee['date_location'])); ?></td>
                                 <td><?= $AfficherEspacesOccupee['bloc'] . '-' . $AfficherEspacesOccupee['numero']; ?>
@@ -60,6 +67,8 @@
                                 <td><?= $AfficherEspacesOccupee['nom'] . '-' . $AfficherEspacesOccupee['prenom'] . '-' . $AfficherEspacesOccupee['telephone']; ?>
                                 </td>
                                 <td> <?= $montantTotal; ?></td>
+                                <td><?= $montantInitial; ?> </td>
+                                <td><?= ($montantInitial - $montantTotal); ?> </td>
                                 <td> <button type="button" class="btn btn-primary" data-toggle="modal"
                                         data-target="#query-<?= $AfficherEspacesOccupee['id_espaces']; ?>"><i
                                             class="fa fa-question-circle"></i>
@@ -99,6 +108,8 @@
                             <th>Position</th>
                             <th>Client</th>
                             <th>Total Paiement</th>
+                            <th>Montant à Payer</th>
+                            <th>Montant Restant</th>
                             <th>Actions</th>
                         </tfoot>
                     </table>
@@ -110,7 +121,7 @@
 <?php } ?>
 
 <?php if ($_GET['display'] == 'espaces_vendu') {
-  $GetEspacesVendu  = GetEspacesVendu($baseDeDonnee); ?>
+    $GetEspacesVendu  = GetEspacesVendu($baseDeDonnee); ?>
 <section class="content-header">
     <h1>
         Listes des Espaces Vendus
@@ -172,7 +183,7 @@
 </section>
 <?php } ?>
 <?php if ($_GET['display'] == 'listes_clients') {
-  $GetCustomers  = GetCustomers($baseDeDonnee); ?>
+    $GetCustomers  = GetCustomers($baseDeDonnee); ?>
 <section class="content-header">
     <h1>
         Listes des Clients
@@ -221,7 +232,7 @@
 </section>
 <?php } ?>
 <?php if ($_GET['display'] == 'listes_resilier') {
-  $GetResilier  = GetResilier($baseDeDonnee); ?>
+    $GetResilier  = GetResilier($baseDeDonnee); ?>
 <section class="content-header">
     <h1>
         Listes des contrats Résilier
@@ -277,7 +288,7 @@
 <?php } ?>
 
 <?php if ($_GET['display'] == 'listes_espaces') {
-  $GetEspaces  = GetEspaces($baseDeDonnee); ?>
+    $GetEspaces  = GetEspaces($baseDeDonnee); ?>
 <section class="content-header">
     <h1>
         Listes des Espaces
@@ -326,7 +337,7 @@
 </section>
 <?php } ?>
 <?php if ($_GET['display'] == 'comptabilite') {
-  $GetPaiements  = GetPaiements($baseDeDonnee); ?>
+    $GetPaiements  = GetPaiements($baseDeDonnee); ?>
 <section class="content-header">
     <h1>
         Listes des Paiements
@@ -388,7 +399,7 @@
 <?php } ?>
 
 <?php if ($_GET['display'] == 'attente_confirm') {
-  $GetConfirmList  = GetConfirmList($baseDeDonnee); ?>
+    $GetConfirmList  = GetConfirmList($baseDeDonnee); ?>
 <section class="content-header">
     <h1>
         Listes des Paiements en Attente de confirmation
@@ -482,7 +493,7 @@
 <!--modalPassCode--->
 <?php } ?>
 <?php if ($_GET['display'] == 'location_paiement') {
-  $GetEspacesOccupee  = GetEspaceOccupe($baseDeDonnee);  ?>
+    $GetEspacesOccupee  = GetEspaceOccupe($baseDeDonnee);  ?>
 <section class="content-header">
     <h1>
         Listes des Espaces en Location
@@ -575,7 +586,7 @@
                         </div>
                     </form>
                     <?php if (isset($_POST['date1']) && isset($_POST['date2'])) {
-              $GetPaiements  = GetPaiementsPeriode($baseDeDonnee, $_POST['date1'], $_POST['date2']); ?>
+                            $GetPaiements  = GetPaiementsPeriode($baseDeDonnee, $_POST['date1'], $_POST['date2']); ?>
                     <table id="dataTable" class="table table-striped table-bordered table-hover dataTables-example">
                         <thead>
                             <tr>
@@ -622,7 +633,7 @@
 </section>
 <?php } ?>
 <?php if ($_GET['display'] == 'impaye_paiement') {
-  $GetMonth  = GetMonth($baseDeDonnee); ?>
+    $GetMonth  = GetMonth($baseDeDonnee); ?>
 <section class="content-header">
     <h1>
         Listes des Paiements
@@ -676,12 +687,12 @@
                         </div>
                     </form>
                     <?php if (isset($_POST['id_mois']) && isset($_POST['annee']) or isset($_GET['id_mois']) or isset($_GET['annee'])) {
-              if (isset($_POST['id_mois'])) {
-                $GetPaiements  = GetImpaye($baseDeDonnee, $_POST['id_mois'], $_POST['annee']);
-              } elseif (isset($_GET['id_mois'])) {
-                $GetPaiements  = GetImpaye($baseDeDonnee, $_GET['id_mois'], $_GET['annee']);
-              }
-            ?>
+                            if (isset($_POST['id_mois'])) {
+                                $GetPaiements  = GetImpaye($baseDeDonnee, $_POST['id_mois'], $_POST['annee']);
+                            } elseif (isset($_GET['id_mois'])) {
+                                $GetPaiements  = GetImpaye($baseDeDonnee, $_GET['id_mois'], $_GET['annee']);
+                            }
+                        ?>
                     <table id="dataTable" class="table table-striped table-bordered table-hover dataTables-example">
                         <thead>
                             <tr>
@@ -730,8 +741,8 @@
 <?php } ?>
 
 <?php if ($_GET['display'] == 'inbox') {
-  $GetMessages = GetMessagesAll($baseDeDonnee);
-  $nombreMessages = CountMessages($baseDeDonnee);
+    $GetMessages = GetMessagesAll($baseDeDonnee);
+    $nombreMessages = CountMessages($baseDeDonnee);
 ?>
 <section class="content-header">
     <h1>
@@ -777,7 +788,7 @@
 
 
 <?php if ($_GET['display'] == 'listes_non_occupe') {
-  $GetEspaces  = GetEspaceNonOccupe($baseDeDonnee); ?>
+    $GetEspaces  = GetEspaceNonOccupe($baseDeDonnee); ?>
 <section class="content-header">
     <h1>
         Listes des Espaces non Occupés

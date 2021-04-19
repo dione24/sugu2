@@ -264,3 +264,12 @@ function ImpayeLocation($baseDeDonnee, $espaces, $Year = NULL)
   $Afficher = $requete->fetchAll();
   return $Afficher;
 }
+
+function GetPaiementsEspaces($baseDeDonnee, $espaces)
+{
+  $requeteRecu = $baseDeDonnee->prepare("SELECT * FROM payements WHERE date_payement=(SELECT MAX(date_payement) FROM payements WHERE payements.id_clients_espaces=:espaces AND payements.confirm_id IS NOT NULL AND payements.reset_id IS NULL)");
+  $requeteRecu->bindValue(':espaces', $espaces, PDO::PARAM_INT);
+  $requeteRecu->execute();
+  $AfficheRecu = $requeteRecu->fetch();
+  return $AfficheRecu['montant'];
+}
