@@ -273,3 +273,19 @@ function GetPaiementsEspaces($baseDeDonnee, $espaces)
   $AfficheRecu = $requeteRecu->fetch();
   return $AfficheRecu['montant'];
 }
+function ListePaiementEspaces($baseDeDonnee, $espaces)
+{
+  $requete = $baseDeDonnee->prepare(" SELECT * FROM payements INNER JOIN mois ON mois.id_mois=payements.id_mois  WHERE payements.id_clients_espaces=:espaces AND payements.confirm_id IS NOT NULL AND payements.reset_id IS NULL ");
+  $requete->bindValue(':espaces', $espaces, PDO::PARAM_INT);
+  $requete->execute();
+  $Result = $requete->fetchAll();
+  return $Result;
+}
+function AncienLocataires($baseDeDonnee, $espaces)
+{
+  $requete = $baseDeDonnee->prepare("SELECT * FROM resiliation INNER JOIN clients ON clients.id_clients=resiliation.id_clients WHERE resiliation.id_espaces=:espaces");
+  $requete->bindValue(':espaces', $espaces, PDO::PARAM_INT);
+  $requete->execute();
+  $Result = $requete->fetchAll();
+  return $Result;
+}

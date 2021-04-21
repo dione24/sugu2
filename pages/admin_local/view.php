@@ -309,16 +309,58 @@
                                 <th>Type</th>
                                 <th>Superficie</th>
                                 <th>Position</th>
+                                <th>View</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($GetEspaces as $key => $AfficherEspaces) { ?>
+                            <?php foreach ($GetEspaces as $key => $AfficherEspaces) {
+                                    $ListePaiementEspaces = ListePaiementEspaces($baseDeDonnee, $AfficherEspaces['id_espaces']);
+                                    $AnciensLocataires = AncienLocataires($baseDeDonnee, $AfficherEspaces['id_espaces']);
+                                ?>
                             <tr>
                                 <td><?= $AfficherEspaces['bloc'] . '-' . $AfficherEspaces['numero']; ?> </td>
                                 <td><?= $AfficherEspaces['type']; ?></td>
                                 <td><?= $AfficherEspaces['superficie']; ?></td>
                                 <td><?= $AfficherEspaces['position']; ?></td>
+                                <td> <button type="button" class="btn btn-primary" data-toggle="modal"
+                                        data-target="#query-<?= $AfficherEspaces['id_espaces']; ?>"><i
+                                            class="fa fa-eye"></i>
+                                    </button></td>
                             </tr>
+                            <div class="modal fade" id="query-<?= $AfficherEspaces['id_espaces']; ?>" tabindex="-1"
+                                role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Historique des Actions</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Historique des Paiements</p>
+                                            <hr>
+                                            <?php foreach ($ListePaiementEspaces as  $key => $data) { ?>
+                                            <p> Mois :
+                                                <?= $data['nom_mois'] . '  Année :' . $data['annee'] . '  Montant : ' . $data['montant'] . ' Date : ' . $data['date_recu']; ?>
+                                            </p>
+                                            <?php } ?>
+                                            <hr>
+                                            <p>Anciens Locataires</p>
+                                            <?php foreach ($AnciensLocataires as  $key => $locataires) { ?>
+                                            <p>Nom :
+                                                <?= $locataires['nom'] . ' Prenom :' . $locataires['prenom'] . ' Tel :' . $locataires['telephone']; ?>
+                                            </p>
+                                            <?php } ?>
+                                            <hr>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-dismiss="modal">Fermer</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <?php } ?>
                         </tbody>
                         <tfoot>
@@ -326,6 +368,7 @@
                             <th>Type</th>
                             <th>Superficie</th>
                             <th>Position</th>
+                            <th>View</th>
                         </tfoot>
                     </table>
                 </div>
