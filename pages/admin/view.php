@@ -1143,6 +1143,7 @@
                                     <?php } ?>
                                 </select>
                             </div>
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Mois</label>
@@ -1163,10 +1164,11 @@
                                             id="exampleInputPassword1">
                                     </div>
                                 </div>
-                                <div class="box-footer">
-                                    <button type="submit" class="btn btn-primary"><i class="fa fa-search">
-                                            Search</i></button>
-                                </div>
+                            </div>
+                            <div class="box-footer">
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-search">
+                                        Search</i></button>
+                            </div>
                     </form>
                     <?php if (isset($_POST['mois1']) && isset($_POST['mois2']) && isset($_POST['year']) ) {
                             $GetPaiements  = RequetePaiement($baseDeDonnee, $_POST['mois1'], $_POST['mois2'],$_POST['year']); ?>
