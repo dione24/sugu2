@@ -1163,9 +1163,11 @@
                                 <input type="int" name="year" class="form-control" id="exampleInputPassword1">
                             </div>
                         </div>
-                        <div class="box-footer">
-                            <button type="submit" class="btn btn-primary"><i class="fa fa-search">
-                                    Search</i></button>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-search">
+                                        Search</i></button>
+                            </div>
                         </div>
                     </form>
                     <?php if (isset($_POST['mois1']) && isset($_POST['mois2']) && isset($_POST['year']) ) {
