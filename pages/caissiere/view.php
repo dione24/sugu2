@@ -880,3 +880,108 @@
     </div>
 </section>
 <?php } ?>
+
+
+<?php if ($_GET['display'] == 'requete_paiement') {
+    $GetMonth  = GetMonth($baseDeDonnee);
+    ?>
+<section class="content-header">
+    <h1>
+        Listes des Paiements
+        <small>/MLCREANCES</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="pages.php?access=caissiere&pages=home"><i class="fa fa-dashboard"></i> Accueil</a></li>
+        <li class="active">Paiements</li>
+    </ol>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-body">
+                    <br />
+                    <form method="post" action="">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>De</label>
+                                <select class="form-control select2" name="mois1" data-placeholder="Choisir un mois"
+                                    style=" text-align: center; width: 100%;">
+                                    <option>Choisir..</option>
+                                    <?php foreach ($GetMonth as $key => $AfficherMois) { ?>
+                                    <option value="<?= $AfficherMois['id_mois']; ?>"><?= $AfficherMois['nom_mois']; ?>
+                                    </option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>A</label>
+                                <select class="form-control select2" name="mois2" data-placeholder="Choisir un mois"
+                                    style=" text-align: center; width: 100%;">
+                                    <option>Choisir..</option>
+                                    <?php foreach ($GetMonth as $key => $AfficherMois) { ?>
+                                    <option value="<?= $AfficherMois['id_mois']; ?>"><?= $AfficherMois['nom_mois']; ?>
+                                    </option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label>Année</label>
+                                <input type="int" name="year" class="form-control" id="exampleInputPassword1">
+                            </div>
+                        </div>
+                        <br>
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-search">Search</i></button>
+
+                    </form>
+                    <?php if (isset($_POST['mois1']) && isset($_POST['mois2']) && isset($_POST['year']) ) {
+                            $GetPaiements  = RequetePaiement($baseDeDonnee, $_POST['mois1'], $_POST['mois2'],$_POST['year']); ?>
+                    <table id="dataTable" class="table table-striped table-bordered table-hover dataTables-example">
+                        <thead>
+                            <tr>
+                                <th>Bloc-Numero</th>
+                                <th>Nom</th>
+                                <th>Prenom</th>
+                                <th>Mois</th>
+                                <th>Annee</th>
+                                <th>Montant</th>
+                                <th>Num_R</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($GetPaiements as $key => $AfficherOperations) { ?>
+                            <tr>
+                                <td><?= $AfficherOperations['bloc'] . '-' . $AfficherOperations['numero']; ?> </td>
+                                <td><?= $AfficherOperations['nom']; ?></td>
+                                <td><?= $AfficherOperations['prenom']; ?></td>
+                                <td><?= $AfficherOperations['nom_mois']; ?></td>
+                                <td><?= $AfficherOperations['annee']; ?></td>
+                                <td><?= $AfficherOperations['montant']; ?></td>
+                                <td><?= $AfficherOperations['montant_recu']; ?></td>
+                                <td><?= date('Y-m-d', strtotime($AfficherOperations['date_recu'])); ?></td>
+                            </tr>
+                            <?php } ?>
+                        </tbody>
+                        <tfoot>
+                            <th>Bloc-Numero</th>
+                            <th>Nom</th>
+                            <th>Prenom</th>
+                            <th>Mois</th>
+                            <th>Annee</th>
+                            <th>Montant</th>
+                            <th>Num_R</th>
+                            <th>Date</th>
+                        </tfoot>
+                    </table>
+                    <?php } ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<?php } ?>
