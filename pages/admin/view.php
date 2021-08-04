@@ -1131,7 +1131,7 @@
                 <div class="box-body">
                     <br />
                     <form method="post" action="">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>De</label>
                                 <select class="form-control select2" name="mois1" data-placeholder="Choisir un mois"
@@ -1144,7 +1144,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>A</label>
                                 <select class="form-control select2" name="mois2" data-placeholder="Choisir un mois"
@@ -1157,7 +1157,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-1">
                             <div class="form-group">
                                 <label>Année</label>
                                 <input type="int" name="year" class="form-control" id="exampleInputPassword1">
