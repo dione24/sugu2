@@ -1112,7 +1112,7 @@
 
 
 <?php if ($_GET['display'] == 'requete_paiement') {
-     $GetMonth  = GetMonth($baseDeDonnee);
+    $GetMonth  = GetMonth($baseDeDonnee);
     ?>
 <section class="content-header">
     <h1>
@@ -1131,9 +1131,9 @@
                 <div class="box-body">
                     <br />
                     <form method="post" action="">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label>Mois</label>
+                                <label>De</label>
                                 <select class="form-control select2" name="mois1" data-placeholder="Choisir un mois"
                                     style=" text-align: center; width: 100%;">
                                     <option>Choisir..</option>
@@ -1143,32 +1143,30 @@
                                     <?php } ?>
                                 </select>
                             </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Mois</label>
-                                    <select class="form-control select2" name="mois2" data-placeholder="Choisir un mois"
-                                        style=" text-align: center; width: 100%;">
-                                        <option>Choisir..</option>
-                                        <?php foreach ($GetMonth as $key => $AfficherMois) { ?>
-                                        <option value="<?= $AfficherMois['id_mois']; ?>">
-                                            <?= $AfficherMois['nom_mois']; ?>
-                                        </option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Année</label>
-                                        <input type="number" name="year" class="form-control"
-                                            id="exampleInputPassword1">
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>A</label>
+                                <select class="form-control select2" name="mois2" data-placeholder="Choisir un mois"
+                                    style=" text-align: center; width: 100%;">
+                                    <option>Choisir..</option>
+                                    <?php foreach ($GetMonth as $key => $AfficherMois) { ?>
+                                    <option value="<?= $AfficherMois['id_mois']; ?>"><?= $AfficherMois['nom_mois']; ?>
+                                    </option>
+                                    <?php } ?>
+                                </select>
                             </div>
-                            <div class="box-footer">
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-search">
-                                        Search</i></button>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Année</label>
+                                <input type="int" name="year" class="form-control" id="exampleInputPassword1">
                             </div>
+                        </div>
+                        <div class="box-footer">
+                            <button type="submit" class="btn btn-primary"><i class="fa fa-search">
+                                    Search</i></button>
+                        </div>
                     </form>
                     <?php if (isset($_POST['mois1']) && isset($_POST['mois2']) && isset($_POST['year']) ) {
                             $GetPaiements  = RequetePaiement($baseDeDonnee, $_POST['mois1'], $_POST['mois2'],$_POST['year']); ?>
