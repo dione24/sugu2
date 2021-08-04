@@ -1163,12 +1163,9 @@
                                 <input type="int" name="year" class="form-control" id="exampleInputPassword1">
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-search">
-                                        Search</i></button>
-                            </div>
-                        </div>
+                        <br>
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-search">Search</i></button>
+
                     </form>
                     <?php if (isset($_POST['mois1']) && isset($_POST['mois2']) && isset($_POST['year']) ) {
                             $GetPaiements  = RequetePaiement($baseDeDonnee, $_POST['mois1'], $_POST['mois2'],$_POST['year']); ?>
