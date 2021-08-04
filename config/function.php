@@ -115,6 +115,19 @@ function GetPaiementsPeriode($baseDeDonnee, $date1, $date2)
   return $AfficherOperations;
 }
 
+function RequetePaiement($baseDeDonnee, $mois1, $mois2,$year)
+{
+  $requeteOperations = $baseDeDonnee->prepare("SELECT *  FROM location LEFT JOIN clients ON clients.id_clients=location.id_clients RIGHT JOIN espaces ON espaces.id_espaces=location.id_espaces LEFT JOIN payements ON payements.id_clients_espaces=location.id_espaces INNER JOIN mois ON mois.id_mois=payements.id_mois WHERE payements.id_mois BETWEEN '$mois1' AND '$mois2' AND (confirm_at IS NOT NULL AND reset_id IS NULL) AND payements.annee=\"$year\"");
+  $requeteOperations->execute();
+  $AfficherOperations = $requeteOperations->fetchAll();
+  return $AfficherOperations;
+}
+
+
+
+
+
+
 function GetImpaye($baseDeDonnee, $mois, $annee)
 {
   $requeteImpaye = $baseDeDonnee->prepare(" SELECT * FROM location INNER JOIN clients ON location.id_clients=clients.id_clients INNER JOIN espaces ON espaces.id_espaces=location.id_espaces WHERE location.id_espaces NOT IN (SELECT id_clients_espaces FROM payements WHERE payements.id_mois=\"$mois\"  AND payements.annee=\"$annee\" AND (confirm_at IS NOT NULL AND reset_id IS NULL) ) ");
