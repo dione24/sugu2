@@ -97,22 +97,22 @@ if (isset($_GET['q'])) {
       break;
 
     case 'delete_espaces':
-      $requeteDeleteSelection = $baseDeDonnee->prepare("DELETE FROM espaces WHERE id_espaces=:id_espaces");
+      $requeteDeleteSelection = $baseDeDonnee->prepare("UPDATE espaces SET Delete_id=:user,Delete_at=:day WHERE id_espaces=:id_espaces");
       $requeteDeleteSelection->bindValue(':id_espaces', $_GET['id_espaces'], PDO::PARAM_STR);
+      $requeteDeleteSelection->bindValue(':user', $_SESSION['id_users'], PDO::PARAM_INT);
+      $requeteDeleteSelection->bindValue(':day', date('Y-m-d H:i:s'), PDO::PARAM_STR);
       $requeteDeleteSelection->execute();
       header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
       break;
 
     case 'resilier_espaces':
-      if (!empty($_GET['id_clients']) && !empty($_GET['id_espaces'])) {
-        $requeteInsertHall = $baseDeDonnee->prepare('INSERT INTO resiliation (id_clients, id_espaces) VALUES(:id_clients,:id_espaces)');
-        $requeteInsertHall->bindValue(':id_clients', $_GET['id_clients'], PDO::PARAM_INT);
-        $requeteInsertHall->bindValue(':id_espaces', $_GET['id_espaces'], PDO::PARAM_INT);
-        $requeteInsertHall->execute();
-        $requeteDelete = $baseDeDonnee->prepare('DELETE FROM location WHERE id_clients=:id_clients AND id_espaces=:id_espaces');
-        $requeteDelete->bindValue(':id_clients', $_GET['id_clients'], PDO::PARAM_INT);
-        $requeteDelete->bindValue(':id_espaces', $_GET['id_espaces'], PDO::PARAM_INT);
-        $requeteDelete->execute();
+      if (!empty($_GET['id_location']) && !empty($_GET['id_espaces'])) {
+        $requete = $baseDeDonnee->prepare('UPDATE location set statut_location=2,agent_resiliation=:user,date_resilisation=:day  WHERE id_location=:id_location AND id_espaces=:id_espaces');
+        $requete->bindValue(':id_location', $_GET['id_location'], PDO::PARAM_INT);
+        $requete->bindValue(':id_espaces', $_GET['id_espaces'], PDO::PARAM_INT);
+        $requete->bindValue(':user', $_SESSION['id_users'], PDO::PARAM_INT);
+        $requete->bindValue(':day', date('Y-m-d H:i:s'), PDO::PARAM_INT);
+        $requete->execute();
         header("location: ../pages.php?access=$url&pages=view&display=espaces_louee");
         $_SESSION['flash']['success'] = "Opération  Effectuée";
       } else {
@@ -155,12 +155,24 @@ if (isset($_GET['q'])) {
 
     case 'louer':
       if (!empty($_POST['id_clients']) && !empty($_POST['id_espaces'])) {
-        $requeteAddLocation = $baseDeDonnee->prepare('INSERT INTO location (id_clients, id_espaces) VALUES(:id_clients,:id_espaces)');
-        $requeteAddLocation->bindValue(':id_clients', $_POST['id_clients'],  PDO::PARAM_INT);
-        $requeteAddLocation->bindValue(':id_espaces', $_POST['id_espaces'],  PDO::PARAM_INT);
-        $requeteAddLocation->execute();
-        header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
-        $_SESSION['flash']['success'] = "Opération  Effectuée";
+        $requete = $baseDeDonnee->prepare('SELECT * FROM location WHERE id_espaces=:espaces  AND statut_location=1 AND agent_resiliation IS NULL  LIMIT 0,1 ');
+        $requete->bindValue(':id_espaces', $_POST['id_espaces'], PDO::PARAM_INT);
+        $requete->execute();
+        $data = $requete->fetch();
+        if (!empty($data)) {
+          header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
+          $_SESSION['flash']['warning'] = "Cette location existe dans le systeme";
+        } else {
+
+          $requeteAddLocation = $baseDeDonnee->prepare('INSERT INTO location (id_clients, id_espaces,agent_insert,statut_location) VALUES(:id_clients,:id_espaces,:agent_insert,:statut_location)');
+          $requeteAddLocation->bindValue(':id_clients', $_POST['id_clients'],  PDO::PARAM_INT);
+          $requeteAddLocation->bindValue(':id_espaces', $_POST['id_espaces'],  PDO::PARAM_INT);
+          $requeteAddLocation->bindValue(':agent_insert', $_SESSION['id_users'],  PDO::PARAM_INT);
+          $requeteAddLocation->bindValue(':statut_location', 1,  PDO::PARAM_INT);
+          $requeteAddLocation->execute();
+          header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
+          $_SESSION['flash']['success'] = "Opération  Effectuée";
+        }
       } else {
         header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
         $_SESSION['flash']['warning'] = "Opération non Effectuée";

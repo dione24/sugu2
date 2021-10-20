@@ -20,7 +20,7 @@ function Verify()
 
 function GetEspaceOccupe($baseDeDonnee)
 {
-  $requeteGetEspaces = $baseDeDonnee->prepare("SELECT * FROM location INNER JOIN espaces ON espaces.id_espaces=location.id_espaces INNER JOIN clients ON clients.id_clients=location.id_clients");
+  $requeteGetEspaces = $baseDeDonnee->prepare("SELECT * FROM location INNER JOIN espaces ON espaces.id_espaces=location.id_espaces INNER JOIN clients ON clients.id_clients=location.id_clients WHERE location.statut_location=1 AND agent_resiliation IS NULL");
   $requeteGetEspaces->execute();
   $AfficherEspacesOccupee = $requeteGetEspaces->fetchAll();
   return $AfficherEspacesOccupee;
@@ -37,7 +37,15 @@ function GetEspaceNonOccupe($baseDeDonnee)
 
 function GetEspacesVendu($baseDeDonnee)
 {
-  $requeteEspaceVendu = $baseDeDonnee->prepare("SELECT * FROM  vendre INNER JOIN clients ON clients.id_clients=vendre.id_clients INNER JOIN espaces ON espaces.id_espaces=vendre.id_espaces");
+  $requeteEspaceVendu = $baseDeDonnee->prepare("SELECT * FROM  vendre INNER JOIN clients ON clients.id_clients=vendre.id_clients INNER JOIN espaces ON espaces.id_espaces=vendre.id_espaces WHERE espaces.encaissement IS NULL");
+  $requeteEspaceVendu->execute();
+  $AfficherEspacesVendu = $requeteEspaceVendu->fetchAll();
+  return $AfficherEspacesVendu;
+}
+
+function GetEspacesVenduEncaissement($baseDeDonnee)
+{
+  $requeteEspaceVendu = $baseDeDonnee->prepare("SELECT * FROM  vendre INNER JOIN clients ON clients.id_clients=vendre.id_clients INNER JOIN espaces ON espaces.id_espaces=vendre.id_espaces WHERE espaces.encaissement=1");
   $requeteEspaceVendu->execute();
   $AfficherEspacesVendu = $requeteEspaceVendu->fetchAll();
   return $AfficherEspacesVendu;
@@ -70,11 +78,21 @@ function GetResilier($baseDeDonnee)
 
 function GetEspaces($baseDeDonnee)
 {
-  $requeteListesEspaces = $baseDeDonnee->prepare(" SELECT * FROM clients INNER JOIN location ON clients.id_clients=location.id_clients RIGHT JOIN espaces ON location.id_espaces=espaces.id_espaces WHERE vend_at IS NULL");
+  $requeteListesEspaces = $baseDeDonnee->prepare(" SELECT * FROM espaces WHERE vend_at IS NULL AND Delete_id IS NULL ");
   $requeteListesEspaces->execute();
   $AfficherEspaces = $requeteListesEspaces->fetchAll();
   return $AfficherEspaces;
 }
+function VerifLocation($baseDeDonnee, $espaces)
+{
+  $UpdateEspaces = $baseDeDonnee->prepare("SELECT * FROM location  WHERE id_espaces=:espaces AND statut_location=1 AND agent_resiliation IS NULL LIMIT 0,1");
+  $UpdateEspaces->bindValue(':espaces', $espaces, PDO::PARAM_INT);
+  $UpdateEspaces->execute();
+  $AfficherEspaces = $UpdateEspaces->fetch();
+  return $AfficherEspaces;
+}
+
+
 function UpdateEspaces($baseDeDonnee, $espaces)
 {
   $UpdateEspaces = $baseDeDonnee->prepare("SELECT * FROM espaces WHERE id_espaces=:id_espaces");
@@ -94,7 +112,15 @@ function GetPaiements($baseDeDonnee)
 
 function GetConfirmList($baseDeDonnee)
 {
-  $requeteConfirm = $baseDeDonnee->prepare("SELECT *  FROM location LEFT JOIN clients ON clients.id_clients=location.id_clients RIGHT JOIN espaces ON espaces.id_espaces=location.id_espaces LEFT JOIN payements ON payements.id_clients_espaces=location.id_espaces INNER JOIN mois ON mois.id_mois=payements.id_mois WHERE  (confirm_at IS NULL AND reset_id IS NULL) ");
+  $requeteConfirm = $baseDeDonnee->prepare("SELECT *  FROM payements INNER JOIN espaces ON espaces.id_espaces=payements.id_clients_espaces INNER JOIN mois ON mois.id_mois=payements.id_mois INNER JOIN location ON location.id_espaces=payements.id_clients_espaces INNER JOIN clients ON clients.id_clients=location.id_clients  WHERE (confirm_at IS NULL AND reset_id IS NULL) ");
+  $requeteConfirm->execute();
+  $AfficherConfirm = $requeteConfirm->fetchAll();
+  return $AfficherConfirm;
+}
+
+function GetConfirmListVendu($baseDeDonnee)
+{
+  $requeteConfirm = $baseDeDonnee->prepare("SELECT * FROM payements INNER JOIN espaces ON espaces.id_espaces=payements.id_clients_espaces INNER JOIN mois ON mois.id_mois=payements.id_mois INNER JOIN location ON location.id_espaces=payements.id_clients_espaces INNER JOIN clients ON clients.id_clients=location.id_clients  WHERE (confirm_at IS NULL AND reset_id IS NULL) ");
   $requeteConfirm->execute();
   $AfficherConfirm = $requeteConfirm->fetchAll();
   return $AfficherConfirm;
@@ -109,15 +135,15 @@ function GetMonth($baseDeDonnee)
 
 function GetPaiementsPeriode($baseDeDonnee, $date1, $date2)
 {
-  $requeteOperations = $baseDeDonnee->prepare("SELECT *  FROM location LEFT JOIN clients ON clients.id_clients=location.id_clients RIGHT JOIN espaces ON espaces.id_espaces=location.id_espaces LEFT JOIN payements ON payements.id_clients_espaces=location.id_espaces INNER JOIN mois ON mois.id_mois=payements.id_mois WHERE payements.date_recu BETWEEN '$date1' AND '$date2' AND (confirm_at IS NOT NULL AND reset_id IS NULL)");
+  $requeteOperations = $baseDeDonnee->prepare("SELECT *  FROM location LEFT JOIN clients ON clients.id_clients=location.id_clients RIGHT JOIN espaces ON espaces.id_espaces=location.id_espaces LEFT JOIN payements ON payements.id_clients_espaces=location.id_espaces INNER JOIN mois ON mois.id_mois=payements.id_mois WHERE payements.date_recu BETWEEN '$date1' AND '$date2' AND (confirm_at IS NOT NULL AND reset_id IS NULL)  AND espaces.Delete_id IS NULL ");
   $requeteOperations->execute();
   $AfficherOperations = $requeteOperations->fetchAll();
   return $AfficherOperations;
 }
 
-function RequetePaiement($baseDeDonnee, $mois1, $mois2,$year)
+function RequetePaiement($baseDeDonnee, $mois1, $mois2, $year)
 {
-  $requeteOperations = $baseDeDonnee->prepare("SELECT *  FROM location LEFT JOIN clients ON clients.id_clients=location.id_clients RIGHT JOIN espaces ON espaces.id_espaces=location.id_espaces LEFT JOIN payements ON payements.id_clients_espaces=location.id_espaces INNER JOIN mois ON mois.id_mois=payements.id_mois WHERE payements.id_mois BETWEEN '$mois1' AND '$mois2' AND (confirm_at IS NOT NULL AND reset_id IS NULL) AND payements.annee=\"$year\"");
+  $requeteOperations = $baseDeDonnee->prepare("SELECT *  FROM location LEFT JOIN clients ON clients.id_clients=location.id_clients RIGHT JOIN espaces ON espaces.id_espaces=location.id_espaces LEFT JOIN payements ON payements.id_clients_espaces=location.id_espaces INNER JOIN mois ON mois.id_mois=payements.id_mois WHERE payements.id_mois BETWEEN '$mois1' AND '$mois2' AND (confirm_at IS NOT NULL AND reset_id IS NULL) AND payements.annee=\"$year\" AND espaces.Delete_id IS NULL");
   $requeteOperations->execute();
   $AfficherOperations = $requeteOperations->fetchAll();
   return $AfficherOperations;
@@ -130,7 +156,7 @@ function RequetePaiement($baseDeDonnee, $mois1, $mois2,$year)
 
 function GetImpaye($baseDeDonnee, $mois, $annee)
 {
-  $requeteImpaye = $baseDeDonnee->prepare(" SELECT * FROM location INNER JOIN clients ON location.id_clients=clients.id_clients INNER JOIN espaces ON espaces.id_espaces=location.id_espaces WHERE location.id_espaces NOT IN (SELECT id_clients_espaces FROM payements WHERE payements.id_mois=\"$mois\"  AND payements.annee=\"$annee\" AND (confirm_at IS NOT NULL AND reset_id IS NULL) ) ");
+  $requeteImpaye = $baseDeDonnee->prepare(" SELECT * FROM location INNER JOIN clients ON location.id_clients=clients.id_clients INNER JOIN espaces ON espaces.id_espaces=location.id_espaces WHERE location.id_espaces NOT IN (SELECT id_clients_espaces FROM payements WHERE payements.id_mois=\"$mois\"  AND payements.annee=\"$annee\" AND (confirm_at IS NOT NULL AND reset_id IS NULL) ) AND espaces.Delete_id IS NULL ");
   $requeteImpaye->execute();
   $AffcherImpaye = $requeteImpaye->fetchAll();
   return $AffcherImpaye;
@@ -176,22 +202,22 @@ function CountClient($baseDeDonnee)
 {
   $requeteCount = $baseDeDonnee->prepare(' SELECT COUNT(id_clients) FROM clients');
   $requeteCount->execute();
-  $Afficher = $requeteCount->fetchAll();
-  return $Afficher[0][0];
+  $Afficher = $requeteCount->fetch();
+  return $Afficher[0];
 }
 function CountEspaces($baseDeDonnee)
 {
   $requeteCount = $baseDeDonnee->prepare('SELECT COUNT(espaces.id_espaces) FROM clients INNER JOIN location ON clients.id_clients=location.id_clients RIGHT JOIN espaces ON location.id_espaces=espaces.id_espaces WHERE vend_at IS NULL');
   $requeteCount->execute();
-  $Afficher = $requeteCount->fetchAll();
-  return $Afficher[0][0];
+  $Afficher = $requeteCount->fetch();
+  return $Afficher[0];
 }
 function CountLocation($baseDeDonnee)
 {
-  $requeteCount = $baseDeDonnee->prepare(' SELECT COUNT(id_espaces) FROM location');
+  $requeteCount = $baseDeDonnee->prepare(' SELECT COUNT(id_espaces) FROM location WHERE statut_location=1 AND agent_resiliation IS NULL');
   $requeteCount->execute();
-  $Afficher = $requeteCount->fetchAll();
-  return $Afficher[0][0];
+  $Afficher = $requeteCount->fetch();
+  return $Afficher[0];
 }
 function CountImpaye($baseDeDonnee, $mois, $date)
 {
@@ -202,8 +228,8 @@ function CountImpaye($baseDeDonnee, $mois, $date)
   $requeteImpaye->bindValue(':mois', $mois, PDO::PARAM_INT);
   $requeteImpaye->bindValue(':annee', $annee, PDO::PARAM_INT);
   $requeteImpaye->execute();
-  $AffcherImpaye = $requeteImpaye->fetchAll();
-  return $AffcherImpaye[0][0];
+  $AffcherImpaye = $requeteImpaye->fetch();
+  return $AffcherImpaye[0];
 }
 function MontantMonth($baseDeDonnee)
 {
@@ -296,7 +322,7 @@ function ListePaiementEspaces($baseDeDonnee, $espaces)
 }
 function AncienLocataires($baseDeDonnee, $espaces)
 {
-  $requete = $baseDeDonnee->prepare("SELECT * FROM resiliation INNER JOIN clients ON clients.id_clients=resiliation.id_clients WHERE resiliation.id_espaces=:espaces");
+  $requete = $baseDeDonnee->prepare("SELECT * FROM location INNER JOIN clients ON clients.id_clients=location.id_clients WHERE location.id_espaces=:espaces AND statut_location=3 AND agent_resiliation IS NOT NULL");
   $requete->bindValue(':espaces', $espaces, PDO::PARAM_INT);
   $requete->execute();
   $Result = $requete->fetchAll();
