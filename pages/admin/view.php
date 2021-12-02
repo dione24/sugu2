@@ -70,7 +70,7 @@
                                 <td><?= $montantInitial; ?> </td>
                                 <td><?= ($montantInitial - $montantTotal); ?> </td>
                                 <td><a class="btn btn-danger" onclick="return confirm('Etes vous sur de vous ?')"
-                                        href="config/actions.php?q=resilier_espaces&id_espaces=<?= $AfficherEspacesOccupee['id_espaces']; ?>&id_clients=<?= $AfficherEspacesOccupee['id_clients']; ?>">Résilier</a>
+                                        href="config/actions.php?q=resilier_espaces&id_location=<?= $AfficherEspacesOccupee['id_location']; ?>&id_espaces=<?= $AfficherEspacesOccupee['id_espaces']; ?>">Résilier</a>
                                     <button type="button" class="btn btn-primary" data-toggle="modal"
                                         data-target="#query-<?= $AfficherEspacesOccupee['id_espaces']; ?>"><i
                                             class="fa fa-question-circle"></i>
@@ -150,6 +150,7 @@
                                 <th>Montant</th>
                                 <th>Date</th>
                                 <th>Vendu Par</th>
+                                <th>Convetion</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -165,6 +166,7 @@
                                 <td><?= $AfficherEspacesVendu['montant']; ?> </td>
                                 <td><?= date('Y-m-d', strtotime($AfficherEspacesVendu['date'])); ?></td>
                                 <td><?= $AfficherEspacesVendu['from_paiement']; ?></td>
+                                <td><button class="btn btn-warning"><i class="fa fa-file"></i></button></td>
                             </tr>
                             <?php } ?>
                         </tbody>
@@ -177,6 +179,7 @@
                             <th>Montant</th>
                             <th>Date</th>
                             <th>Vendu Par</th>
+                            <th>Convetion</th>
                         </tfoot>
                     </table>
                 </div>
@@ -340,6 +343,7 @@
                             <?php foreach ($GetEspaces as $key => $AfficherEspaces) {
                                     $ListePaiementEspaces = ListePaiementEspaces($baseDeDonnee, $AfficherEspaces['id_espaces']);
                                     $AnciensLocataires = AncienLocataires($baseDeDonnee, $AfficherEspaces['id_espaces']);
+                                    $VerifLocation = VerifLocation($baseDeDonnee, $AfficherEspaces['id_espaces']);
                                 ?>
                             <tr>
                                 <td><?= $AfficherEspaces['bloc'] . '-' . $AfficherEspaces['numero']; ?> </td>
@@ -347,12 +351,12 @@
                                 <td><?= $AfficherEspaces['position']; ?></td>
                                 <td><?= $AfficherEspaces['superficie']; ?></td>
                                 <td style="text-align:justify; text-color: white;width: auto;">
-                                    <?php if (empty($AfficherEspaces['nom'])) { ?> <a class="btn btn-success"
+                                    <?php if (empty($VerifLocation)) { ?> <a class="btn btn-success"
                                         href="pages.php?access=admin&pages=ajouter_clients&display=louer_espace&id_espaces=<?= $AfficherEspaces['id_espaces']; ?>">Louer</a><?php } else { ?>
                                     <a class="btn btn-danger" onclick="return confirm('Etes vous sur de vous ?')"
-                                        href="config/actions.php?q=resilier_espaces&id_espaces=<?= $AfficherEspaces['id_espaces']; ?>&id_clients=<?= $AfficherEspaces['id_clients']; ?>">Résilier</a>
+                                        href="config/actions.php?q=resilier_espaces&id_location=<?= $VerifLocation['id_location']; ?>&id_espaces=<?= $VerifLocation['id_espaces']; ?>">Résilier</a>
                                     <?php } ?>
-                                    <a href=""><?php if (empty($AfficherEspaces['nom'])) { ?> <a class="btn btn-primary"
+                                    <a href=""><?php if (empty($VerifLocation)) { ?> <a class="btn btn-primary"
                                             href="pages.php?access=admin&pages=ajouter_clients&display=vente_espace&id_espaces=<?= $AfficherEspaces['id_espaces']; ?>">Vendre</a><?php } ?></a>
                                 </td>
                                 <td> <button type="button" class="btn btn-primary" data-toggle="modal"
@@ -361,11 +365,11 @@
                                     </button></td>
                                 <td style=" text-align:justify;"> <a class="btn btn-success"
                                         href="pages.php?access=admin&pages=ajouter_clients&display=update_epaces&id_espaces=<?= $AfficherEspaces['id_espaces']; ?>"><i
-                                            class="fa fa-edit"> Modifier</i></a>
+                                            class="fa fa-edit"></i></a>
                                     <a class="btn btn-danger"
                                         href="config/actions.php?q=delete_espaces&id_espaces=<?= $AfficherEspaces['id_espaces']; ?>"
                                         onclick="return confirm('Etes vous sur de continuer cette action car elle est irreversible?')">
-                                        <i class="fa fa-times"> Supprimer</i></a>
+                                        <i class="fa fa-times"></i></a>
                                 </td>
                             </tr>
                             <div class="modal fade" id="query-<?= $AfficherEspaces['id_espaces']; ?>" tabindex="-1"
@@ -597,7 +601,9 @@
 <!--modalPassCode--->
 <?php } ?>
 <?php if ($_GET['display'] == 'location_paiement') {
-    $GetEspacesOccupee  = GetEspaceOccupe($baseDeDonnee);  ?>
+    $GetEspacesOccupee  = GetEspaceOccupe($baseDeDonnee);
+    $GetEspacesVenduEncaissement = GetEspacesVenduEncaissement($baseDeDonnee);
+?>
 <section class="content-header">
     <h1>
         Listes des Espaces en Location
@@ -636,6 +642,18 @@
                                 </td>
                                 <td><a class="btn btn-success"
                                         href="pages.php?access=admin&pages=ajouter_clients&display=paiement_location&id_espaces=<?= $AfficherEspacesOccupee['id_espaces']; ?>">Paiement</a>
+                                </td>
+                            </tr>
+                            <?php } ?>
+                            <?php foreach ($GetEspacesVenduEncaissement as $key => $AfficherEspacesVendu) { ?>
+                            <tr>
+                                <td><?= $AfficherEspacesVendu['bloc'] . '-' . $AfficherEspacesVendu['numero']; ?></td>
+                                <td><?= $AfficherEspacesVendu['type']; ?></td>
+                                <td><?= $AfficherEspacesVendu['superficie']; ?></td>
+                                <td><?= $AfficherEspacesVendu['position']; ?></td>
+                                <td><?= $AfficherEspacesVendu['nom'] . '-' . $AfficherEspacesVendu['prenom'] . '-' . $AfficherEspacesVendu['telephone']; ?>
+                                <td><a class="btn btn-warning"
+                                        href="pages.php?access=admin&pages=ajouter_clients&display=paiement_location&id_espaces=<?= $AfficherEspacesVendu['id_espaces']; ?>">Paiement</a>
                                 </td>
                             </tr>
                             <?php } ?>
@@ -1113,7 +1131,7 @@
 
 <?php if ($_GET['display'] == 'requete_paiement') {
     $GetMonth  = GetMonth($baseDeDonnee);
-    ?>
+?>
 <section class="content-header">
     <h1>
         Listes des Paiements
@@ -1167,8 +1185,8 @@
                         <button type="submit" class="btn btn-primary"><i class="fa fa-search">Search</i></button>
 
                     </form>
-                    <?php if (isset($_POST['mois1']) && isset($_POST['mois2']) && isset($_POST['year']) ) {
-                            $GetPaiements  = RequetePaiement($baseDeDonnee, $_POST['mois1'], $_POST['mois2'],$_POST['year']); ?>
+                    <?php if (isset($_POST['mois1']) && isset($_POST['mois2']) && isset($_POST['year'])) {
+                            $GetPaiements  = RequetePaiement($baseDeDonnee, $_POST['mois1'], $_POST['mois2'], $_POST['year']); ?>
                     <table id="dataTable" class="table table-striped table-bordered table-hover dataTables-example">
                         <thead>
                             <tr>
