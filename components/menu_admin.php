@@ -5,7 +5,7 @@
                 <img src="images/mlc.jpg" class="img-circle" alt="User Image">
             </div>
             <div class="pull-left info">
-                <p><?= $_SESSION['login'];?> </p>
+                <p><?= $_SESSION['login']; ?> </p>
                 <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
             </div>
         </div>
@@ -88,13 +88,28 @@
                 </ul>
             </li>
             <li class="treeview">
+                <a href="#"><i class="fa fa-user"></i> <span>Gestion Privée</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li><a href="pages.php?access=admin&pages=view&display=private">Liste des Espaces</a></li>
+                    <li><a href="pages.php?access=admin&pages=view&display=private_paiement">Liste des Paiements</a>
+                    </li>
+                </ul>
+            </li>
+
+
+
+            <li class="treeview">
                 <a href="#"><i class="fa fa-user"></i> <span>Gestion des Carnets</span>
                     <span class="pull-right-container">
                         <i class="fa fa-angle-left pull-right"></i>
                     </span>
                 </a>
                 <ul class="treeview-menu">
-                    <li><a href="pages.php?access=admin&pages=view&display=listes_carnets">Listes des Carnets</a></li>
+                    <li><a href="pages.php?access=admin&pages=view&display=listes_carnets">Liste des Carnets</a></li>
                     <li><a href="#"></a></a></li>
                 </ul>
             </li>

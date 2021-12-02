@@ -155,23 +155,47 @@ if (isset($_GET['q'])) {
 
     case 'louer':
       if (!empty($_POST['id_clients']) && !empty($_POST['id_espaces'])) {
-        $requete = $baseDeDonnee->prepare('SELECT * FROM location WHERE id_espaces=:espaces  AND statut_location=1 AND agent_resiliation IS NULL  LIMIT 0,1 ');
-        $requete->bindValue(':id_espaces', $_POST['id_espaces'], PDO::PARAM_INT);
-        $requete->execute();
-        $data = $requete->fetch();
-        if (!empty($data)) {
-          header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
-          $_SESSION['flash']['warning'] = "Cette location existe dans le systeme";
-        } else {
+        if ($_POST['RefType'] == 2) {
 
-          $requeteAddLocation = $baseDeDonnee->prepare('INSERT INTO location (id_clients, id_espaces,agent_insert,statut_location) VALUES(:id_clients,:id_espaces,:agent_insert,:statut_location)');
-          $requeteAddLocation->bindValue(':id_clients', $_POST['id_clients'],  PDO::PARAM_INT);
-          $requeteAddLocation->bindValue(':id_espaces', $_POST['id_espaces'],  PDO::PARAM_INT);
-          $requeteAddLocation->bindValue(':agent_insert', $_SESSION['id_users'],  PDO::PARAM_INT);
-          $requeteAddLocation->bindValue(':statut_location', 1,  PDO::PARAM_INT);
-          $requeteAddLocation->execute();
-          header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
-          $_SESSION['flash']['success'] = "Opération  Effectuée";
+          $requete = $baseDeDonnee->prepare('SELECT * FROM privatelocation WHERE RefEspaces=:espaces  AND statut_location=1   LIMIT 0,1 ');
+          $requete->bindValue(':espaces', $_POST['id_espaces'], PDO::PARAM_INT);
+          $requete->execute();
+          $data = $requete->fetch();
+          if (!empty($data)) {
+            header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
+            $_SESSION['flash']['warning'] = "Cette location existe dans le systeme";
+          } else {
+            $requeteAddLocation = $baseDeDonnee->prepare('INSERT INTO privatelocation (RefClients,RefEspaces) VALUES(:RefClients,:RefEspaces)');
+            $requeteAddLocation->bindValue(':RefClients', $_POST['id_clients'],  PDO::PARAM_INT);
+            $requeteAddLocation->bindValue(':RefEspaces', $_POST['id_espaces'],  PDO::PARAM_INT);
+            $requeteAddLocation->execute();
+
+            $requete = $baseDeDonnee->prepare('UPDATE espaces SET statut_private=1 WHERE id_espaces=:RefEspaces ');
+            $requete->bindValue(':RefEspaces', $_POST['id_espaces'],  PDO::PARAM_INT);
+            $requete->execute();
+
+            header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
+            $_SESSION['flash']['success'] = "Opération  Effectuée";
+          }
+        } else {
+          $requete = $baseDeDonnee->prepare('SELECT * FROM location WHERE id_espaces=:espaces  AND statut_location=1 AND agent_resiliation IS NULL  LIMIT 0,1 ');
+          $requete->bindValue('espaces', $_POST['id_espaces'], PDO::PARAM_INT);
+          $requete->execute();
+          $data = $requete->fetch();
+          if (!empty($data)) {
+            header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
+            $_SESSION['flash']['warning'] = "Cette location existe dans le systeme";
+          } else {
+
+            $requeteAddLocation = $baseDeDonnee->prepare('INSERT INTO location (id_clients, id_espaces,agent_insert,statut_location) VALUES(:id_clients,:id_espaces,:agent_insert,:statut_location)');
+            $requeteAddLocation->bindValue(':id_clients', $_POST['id_clients'],  PDO::PARAM_INT);
+            $requeteAddLocation->bindValue(':id_espaces', $_POST['id_espaces'],  PDO::PARAM_INT);
+            $requeteAddLocation->bindValue(':agent_insert', $_SESSION['id_users'],  PDO::PARAM_INT);
+            $requeteAddLocation->bindValue(':statut_location', 1,  PDO::PARAM_INT);
+            $requeteAddLocation->execute();
+            header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
+            $_SESSION['flash']['success'] = "Opération  Effectuée";
+          }
         }
       } else {
         header("location: ../pages.php?access=$url&pages=view&display=listes_espaces");
@@ -393,6 +417,41 @@ if (isset($_GET['q'])) {
           header("location: ../pages.php?access=$url&pages=view&display=listes_carnets");
           $_SESSION['flash']['success'] = "Changement Effectué";
         }
+      }
+      break;
+
+    case 'private_paiement':
+
+      $query = $baseDeDonnee->prepare(" INSERT INTO paymentsprivate (RefLocation,montant,mois,annee,recu,date_recu,agent_insert) VALUES(:RefLocation,:montant,:mois,:annee,:recu,:date_recu,:agent_insert)");
+      $query->bindValue(':RefLocation', $_POST['RefLocation'],  PDO::PARAM_INT);
+      $query->bindValue(':montant', $_POST['montant'],  PDO::PARAM_INT);
+      $query->bindValue(':mois', $_POST['id_mois'],  PDO::PARAM_INT);
+      $query->bindValue('annee', $_POST['annee'], PDO::PARAM_INT);
+      $query->bindValue(':recu', $_POST['montant_recu'],  PDO::PARAM_STR);
+      $query->bindValue('date_recu', $_POST['date_recu'], PDO::PARAM_STR);
+      $query->bindValue('agent_insert', $_SESSION['id_users'], PDO::PARAM_INT);
+      $query->execute();
+      header("location: ../pages.php?access=$url&pages=view&display=private");
+      $_SESSION['flash']['success'] = "Paiement Effectuée";
+
+      break;
+    case 'resilier_private':
+      if (!empty($_GET['RefLocation']) && !empty($_GET['RefEspaces'])) {
+
+        $requete = $baseDeDonnee->prepare('UPDATE privatelocation SET statut_location=2 WHERE RefLocation=:RefLocation');
+        $requete->bindValue(':RefLocation', $_GET['RefLocation'], PDO::PARAM_INT);
+        $requete->execute();
+
+        $requeteEspaces = $baseDeDonnee->prepare('UPDATE espaces SET statut_private=NULL WHERE id_espaces=:id_espaces ');
+        $requeteEspaces->bindValue(':id_espaces', $_GET['RefEspaces'],  PDO::PARAM_INT);
+        $requeteEspaces->execute();
+
+
+        header("location: ../pages.php?access=$url&pages=view&display=private");
+        $_SESSION['flash']['success'] = "Opération  Effectuée";
+      } else {
+        header("location: ../pages.php?access=$url&pages=view&display=private");
+        $_SESSION['flash']['warning'] = "Opération non Effectuée";
       }
       break;
   }
