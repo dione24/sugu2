@@ -123,6 +123,14 @@ function RequetePaiement($baseDeDonnee, $mois1, $mois2, $year)
   return $AfficherOperations;
 }
 
+function VerifLocation($baseDeDonnee, $espaces)
+{
+  $UpdateEspaces = $baseDeDonnee->prepare("SELECT * FROM location  WHERE id_espaces=:espaces AND statut_location=1 AND agent_resiliation IS NULL LIMIT 0,1");
+  $UpdateEspaces->bindValue(':espaces', $espaces, PDO::PARAM_INT);
+  $UpdateEspaces->execute();
+  $AfficherEspaces = $UpdateEspaces->fetch();
+  return $AfficherEspaces;
+}
 
 
 
